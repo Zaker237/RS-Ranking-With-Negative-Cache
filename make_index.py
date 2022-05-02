@@ -1,17 +1,18 @@
 import torch
 import h5py
-from types import Tuple
-from train import DualEncoder
+from typing import List, Tuple
+from pathlib import Path
+from model import DualEncoder
 
 def load_model_from_checkpoint(checkpoint_path: Path) -> DualEncoder:
     model = DualEncoder.load_from_checkpoint(checkpoint_path)
     return model
 
-def load_data(data_file: Path) -> Tuple[List[str], List[str]]:
+def load_docs(data_file: Path) -> List[str]:
     with h5py.File(data_file, "r") as fp:
-        queries = fp["queries"].asstr()
+        # queries = fp["queries"].asstr()
         docs = fp["docs"].asstr()
-    return queries, docs
+    return docs
 
 def creata_doc_index(model: DualEncoder, queries: List[str], docs: List[str]) -> None:
     pass
