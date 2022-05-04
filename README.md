@@ -6,4 +6,4 @@ For my Study i use the pytorch Implementation in the Negative Sample available [
 
 I also decided to use the same learning rate as the one used in the paper.
 
-The Dataset used for the study is the msmarco passage. 
+The Dataset used for the study is the msmarco passage.
