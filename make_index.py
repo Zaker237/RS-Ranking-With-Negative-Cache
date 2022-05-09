@@ -1,4 +1,3 @@
-import torch
 import faiss
 import h5py
 from typing import List, Tuple
@@ -15,7 +14,16 @@ class Indexes():
     def __init__(self, model: DualEncoder, bert_model: str):
         self.model = model
         self.tokenizer = AutoTokenizer.from_pretrained(bert_model)
-        self.index = faiss.IndexFlatL2(model.document_encoder.config.hidden_size)
+        # self.config = faiss.GpuIndexConfig()
+        # self.config.useFloat16 = False
+        # self.config.device = 2
+        # self.resource = faiss.StandardGpuResources()
+        # self.index = faiss.GpuIndexFlatL2(
+        #     self.resource,
+        #     self.model.document_encoder.config.hidden_size,
+        #     self.config
+        # )
+        self.index = faiss.IndexFlatL2(self.model.document_encoder.config.hidden_size)
 
     def load_index(self, path: Path):
         # load the faiss index from the disk
@@ -45,7 +53,6 @@ def load_model_from_checkpoint(checkpoint_path: Path) -> DualEncoder:
     model = DualEncoder.load_from_checkpoint(checkpoint_path)
     print("Model loaded")
     return model
-
 
 
 def main():
