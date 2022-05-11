@@ -1,6 +1,7 @@
 import os
-
 from pyserini.dsearch import SimpleDenseSearcher, TctColBertQueryEncoder
+
+from config import MODEL_PATH, DOCS_PATH, INDEX_PATH
 
 TEXT_DATA_FILE = "./msmarco-test2019-queries.tsv"
 RESULT_FILE = "./msmarco-test2019-results.tsv"

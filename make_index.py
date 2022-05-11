@@ -36,17 +36,19 @@ class Indexes():
         print("Index saved to", path)
 
     def add_doc_to_index(self, doc: str):
-        doc_data = self.tokenizer([doc], padding=True, truncation=True, return_tensors="pt")
+        doc_data = self.tokenizer([doc], padding=True, truncation=True, return_tensors="pt").to(self.model.device)
         embedding = self.model.encode_doc(doc_data).detach().cpu().numpy()
         self.index.add(embedding)
 
 
 def load_docs(data_file: Path) -> List[str]:
+    docs = []
     with h5py.File(data_file, "r") as fp:
-        queries = fp["queries"].asstr()
+        # queries = fp["queries"].asstr()
         docs = fp["docs"].asstr()
-        for doc in docs:
-            yield doc
+        # for doc in docs:
+            # yield doc
+    return docs
 
 
 def load_model_from_checkpoint(checkpoint_path: Path) -> DualEncoder:
@@ -57,7 +59,7 @@ def load_model_from_checkpoint(checkpoint_path: Path) -> DualEncoder:
 
 def main():
     # TODO: load model
-    model = load_model_from_checkpoint(MODEL_PATH)
+    model = load_model_from_checkpoint(MODEL_PATH).cuda(device=3)
 
     # Init the index encoder
     index = Indexes(model, "bert-base-uncased")
@@ -65,9 +67,10 @@ def main():
 
     # TODO: load data and build index
     i = 0
-    for document in load_docs(DOCS_PATH):
-        print(f"Adding document {i}")
+    docs = load_docs(DOCS_PATH)
+    for document in docs:
         index.add_doc_to_index(document)
+        print(f"Adding document {i}")
         i += 1
 
     # the Inedex is now ready to be used and saved
