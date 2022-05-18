@@ -20,7 +20,7 @@ This class provides an overview of how to use the negative_cache library. It is 
 
 
 class DualEncoder(LightningModule):
-    def __init__(self, lr=0.001, max_epochs=1, **kwargs):
+    def __init__(self, lr=0.001, max_epochs=1, cache_size=131072, top_k=64, **kwargs):
         super().__init__()
         self.query_encoder = AutoModel.from_pretrained(
             "bert-base-uncased", return_dict=True
@@ -32,7 +32,7 @@ class DualEncoder(LightningModule):
         self.learning_rate = lr
         self.max_epochs = max_epochs
 
-        self.handler = self.setup_negative_cache(cache_size=131072, top_k=64)
+        self.handler = self.setup_negative_cache(cache_size=cache_size, top_k=top_k)
 
     def setup_negative_cache(
         self,

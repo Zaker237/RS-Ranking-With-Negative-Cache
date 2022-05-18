@@ -1,4 +1,5 @@
 import h5py
+import argparse
 from transformers import AutoTokenizer
 import pytorch_lightning as pl
 from torch.utils.data import Dataset, DataLoader
@@ -39,13 +40,24 @@ class TrainingDataset(Dataset):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--bert_model", type=str, default="bert-base-uncased")
+    parser.add_argument("--batch_size", type=int, default=6)
+    parser.add_argument("--cache_size", type=float, default=512000)
+    parser.add_argument("--top_k", type=int, default=64)
+    parser.add_argument("--h5_dir", type=str, required=True)
+    parser.add_argument("--lr", type=float, default=0.001)
+    parser.add_argument("--num_epochs", type=int, default=5)
+    parser.add_argument("--gpus", type=int, nargs="+", default=[0])
+    args = parser.parse_args()
+
     pl.seed_everything(123, workers=True)
 
     h5_dir = Path("/home/mboutchouang/ranking-utils/outputs/2022-04-11/11-32-20")
-    ds = TrainingDataset(h5_dir / "data.h5", h5_dir / "fold_0" / "train_pairwise.h5", "bert-base-uncased")
+    ds = TrainingDataset(args.h5_dir / "data.h5", args.h5dir / "fold_0" / "train_pairwise.h5", args.bert_model)
     dl = DataLoader(ds, batch_size=6, collate_fn=ds.collate_fn, num_workers=16)
-    model = DualEncoder(lr=1e-5)
-    trainer = pl.Trainer(precision=16, accelerator="gpu", gpus=[0, 1, 2, 3], strategy="ddp", max_epochs=16)
+    model = DualEncoder(lr=1e-5, top_k=args.top_k, cache_size=args.cache_size)
+    trainer = pl.Trainer(precision=16, accelerator="gpu", gpus=args.gpus, strategy="ddp", max_epochs=args.num_epochs)
     trainer.fit(model=model, train_dataloaders=dl)
 
 if __name__ == "__main__":
